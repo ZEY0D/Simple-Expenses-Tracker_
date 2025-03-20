@@ -1,0 +1,85 @@
+Steps to create a full MVC .net project 
+
+1_ specify the type pf data that the project will work with
+    )) going to ))(Models) representing the database for our app and create the model classes where 
+        each model class Represents a table in our db
+        .. like we used to do each class (table) will consist of probs (columns)
+        ___ and we can add some validations on our probs (import using System.ComponentModel.DataAnnotations);
+)
+
+
+2_ after specifying the tables , we need to connect to the database 
+    .. ofcourse using EF   ('Data' folder in the project and create the context of the app)
+    __ then creating DbSet<model class name> for each entity 'model class' in the db
+
+    )) then connecting to a database server
+    __ define the connectionstring in appsettings.json and define the server in program.cs using the connectionstring
+
+
+    __ after this we add the Migrations to our project :
+            - dotnet ef migrations add InitialCreate
+            - dotnet ef database update
+
+
+
+
+
+
+)) _Controller and viewer  MVC
+    ...controller acts like the brain of the website 
+    __ it handles user actions in the website and sends the response to the viewer to display it usefri
+
+    ... in this step we create a controller for the models or the tables we have (MVC controller)
+    . then reading an instandce of the database context and pass it as a dependency to the constructor of the controller
+
+
+
+__) inside each controller there's a default action method for the viewer
+    __ to handle the view page when a specific action happens ,, we go to the views folder and add a new folder called expenses or whatever the model
+     , and inside this folder we add a view page (cshtml link) to render when this action happens   (Razor page)
+    
+   // when the user make a request to /controller name(expenses)/actionmethod_name (Index) ))))_ he should see this view
+    
+
+    
+    )))) basically all the frontend is handled in the views folder , from the home page to all actions in the website
+
+
+
+
+
+
+
+)) to make the website ready for production ___ there's a few adjustments should be made 
+1- async programming
+    )) public IActionResult Index(){}           will be
+        ______> public async Task<IActionResult> Index(){}
+
+        __ var expenses = await _context.Expenses.ToListAsync();
+
+
+
+
+2- if u will deploy the site , it's not good to access the database inside the controller
+    __ we should use Services )) to access the database in a more secure place
+                ______________ Services is usually in the 'Data' folder cuz it's for data accessing
+
+    ))) create a folder called 'Service' in the 'Data'  
+        .. it will have an interface and a class for each Service or each model Represented in the controller
+        ___ in the interface we put the methods and we implement them in the class ))(access the context in the class)
+
+
+        === note that the methods added in the interface are the async methods that requires database accessing
+
+
+
+
+======== when we implement in the class , we just take from the controller the lines that directly access the context
+=== and instead of accessing the context directly in the controller ___we access the service using the interface
+
+
+)) and we access the methods from the interface instead of accessing the context in the controller
+_________________ var expenses =await _expensesService.GetAll();
+
+))) dont forget the 'await' keyword when replacing
+        _______ and dont forget to adjust the 'program.cs' __ configure your service in it
